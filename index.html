@@ -11,30 +11,23 @@
         body { font-family: 'Fira+Code', monospace; background: #020617; color: #00ff00; overflow-x: hidden; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
         .hidden { display: none !important; }
         .terminal-box { border: 1px solid #064e3b; background: rgba(0,0,0,0.95); box-shadow: 0 0 40px rgba(0, 255, 0, 0.1); }
-        .meme-img { max-height: 300px; width: auto; margin: 0 auto; border-radius: 15px; border: 3px solid #00ff00; }
+        .meme-img { max-height: 250px; width: auto; margin: 0 auto; border-radius: 15px; border: 3px solid #00ff00; }
+        .girl-img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 6px solid #22c55e; box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); margin: 0 auto; }
         
-        /* Glitch Effect for Hacked Screen */
-        .glitch { animation: glitch 0.2s ease-in-out infinite; }
-        @keyframes glitch { 
-            0% { transform: translate(0) } 
-            20% { transform: translate(-2px, 2px) } 
-            40% { transform: translate(-2px, -2px) } 
-            60% { transform: translate(2px, 2px) } 
-            80% { transform: translate(2px, -2px) } 
-            100% { transform: translate(0) } 
-        }
+        .pulse-text { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="p-4 w-full flex justify-center">
 
-    <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/940/940-preview.mp3" preload="auto" loop></audio>
+    <audio id="party-sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
 
     <div id="screen-intro" class="text-center space-y-6 max-w-2xl w-full">
         <div class="terminal-box p-8 md:p-10 rounded-3xl border-2 border-green-500">
             <h1 class="text-2xl md:text-4xl font-black mb-4 text-white uppercase tracking-tighter">⚠️ SYSTEM UPDATE REQUIRED ⚠️</h1>
             <p class="text-green-400 text-lg md:text-xl font-bold mb-6 italic">Life Status: Upgrading to v2.0</p>
             <p class="text-slate-400 mb-8 leading-relaxed text-sm md:text-base">
-                "Mummy-Papa, tusi sochde hovoge ki koi interest nai le rea munda, sara din bass bikes, games and office hor kuch nai... <br><br>
+                "Mummy-Papa, aap logon ko lag raha tha na ki meri life bas office, bikes aur gaming ke loop mein atak gayi hai, aur shaadi mein toh mera koi interest hi nahi hai... <br><br>
                 Par aaj system ka sabse bada update aane wala hai. I am deploying the most important project of my life!"
             </p>
             <button onclick="startProcess()" class="bg-green-600 text-black font-black py-4 px-8 md:px-12 rounded-xl shadow-[0_0_40px_rgba(34,197,94,0.7)] hover:scale-105 transition-transform w-full md:w-auto">
@@ -60,17 +53,29 @@
         </div>
     </div>
 
+    <div id="screen-search-intro" class="hidden w-full max-w-2xl text-center">
+        <div class="terminal-box p-10 rounded-2xl">
+            <div class="text-4xl mb-6">🔍</div>
+            <h2 id="search-intro-title" class="text-2xl font-bold text-white mb-4">Searching Database...</h2>
+            <p id="search-intro-desc" class="text-slate-400 font-mono pulse-text">Querying local profiles...</p>
+        </div>
+    </div>
+
     <div id="screen-script" class="hidden w-full max-w-2xl bg-black p-6 md:p-8 rounded-xl border-2 border-green-900 shadow-2xl">
         <div class="text-xs text-green-800 mb-4 uppercase tracking-[0.3em] font-bold" id="script-title">Server: PUNJAB_DB_01</div>
         <div id="script-logs" class="space-y-2 text-green-400 font-mono text-sm sm:text-base h-64 overflow-y-auto mb-6"></div>
-        
-        <button id="script-next-btn" onclick="handleScriptNext()" class="hidden w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl text-lg shadow-[0_0_30px_rgba(220,38,38,0.5)] uppercase">
-            Acknowledge Error & Continue
-        </button>
-        
-        <button id="script-execute-btn" onclick="triggerHackScreen()" class="hidden w-full bg-green-600 hover:bg-green-700 text-black font-black py-4 rounded-xl text-lg shadow-[0_0_30px_rgba(34,197,94,0.5)] uppercase animate-pulse">
-            EXECUTE OVERRIDE PROTOCOL
-        </button>
+        <button id="script-next-btn" class="hidden w-full font-black py-4 rounded-xl text-lg uppercase"></button>
+    </div>
+
+    <div id="screen-search-error" class="hidden w-full max-w-2xl text-center">
+        <div class="bg-red-900/20 border-2 border-red-600 p-10 rounded-2xl shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+            <div class="text-5xl mb-6">❌</div>
+            <h2 id="error-title" class="text-3xl font-black text-red-500 mb-4 uppercase">No Match Found!</h2>
+            <p id="error-desc" class="text-slate-300 text-lg mb-8 leading-relaxed"></p>
+            <button id="error-continue-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg w-full md:w-auto">
+                Continue Search >>
+            </button>
+        </div>
     </div>
 
     <div id="screen-city" class="hidden w-full max-w-2xl text-center">
@@ -85,72 +90,82 @@
             </div>
 
             <div id="amritsar-container" class="mt-6 hidden">
-                <p class="text-green-500 mb-2 font-mono text-sm">// Hidden root access revealed</p>
+                <p class="text-green-500 mb-2 font-mono text-sm">// Root access revealed // Perfect Match Location</p>
                 <button onclick="checkCity('Amritsar')" class="w-full p-4 border-2 border-green-600 bg-green-900/30 text-green-400 rounded-xl hover:bg-green-700 hover:text-black transition-all font-black text-xl uppercase tracking-widest shadow-[0_0_15px_rgba(34,197,94,0.4)]">
                     Search in Amritsar 🛕
                 </button>
             </div>
 
-            <div id="city-alert" class="hidden mt-6 p-4 border font-bold rounded-lg transition-all">
-                </div>
+            <div id="city-alert" class="hidden mt-6 p-4 border font-bold rounded-lg transition-all"></div>
         </div>
     </div>
 
-    <div id="screen-hacked" class="hidden fixed inset-0 bg-red-900 z-50 flex flex-col items-center justify-center p-4">
-        <div class="glitch text-center">
-            <h1 class="text-6xl md:text-8xl font-black text-white mb-4">CRITICAL ALERT</h1>
-            <h2 class="text-3xl md:text-5xl font-bold text-black bg-white inline-block px-4 py-2 mb-8">SYSTEM COMPROMISED</h2>
-            <p class="text-white text-xl font-mono mt-4">>> OVERRIDING PROTOCOLS...</p>
-            <p class="text-white text-xl font-mono mt-2">>> DEPLOYING MARRIAGE.EXE...</p>
-            <p class="text-white text-xl font-mono mt-2">>> TARGET LOCKED.</p>
+    <div id="screen-match-found" class="hidden w-full max-w-2xl text-center space-y-6">
+        <div class="bg-green-900/20 border-2 border-green-500 p-8 md:p-12 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)]">
+            <h1 class="text-3xl md:text-5xl font-black text-green-500 mb-6 uppercase tracking-widest">Match Found! ✅</h1>
+            
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400" alt="The Girl" class="girl-img mb-6">
+            
+            <h2 class="text-3xl font-black text-white mb-2">ENTER NAME HERE ❤️</h2>
+            <p class="text-green-400 font-mono mb-8">Location: Amritsar | Status: 100% Compatible</p>
+            
+            <button onclick="showAcceptance()" class="bg-green-600 hover:bg-green-500 text-black font-bold py-4 px-8 rounded-xl shadow-lg transition-transform hover:scale-105 w-full md:w-auto uppercase">
+                Proceed to Validation >>
+            </button>
+        </div>
+    </div>
+
+    <div id="screen-acceptance" class="hidden w-full max-w-2xl text-center">
+        <div class="terminal-box p-10 rounded-3xl space-y-8">
+            <h2 class="text-3xl font-black text-white">Final System Confirmation</h2>
+            <p class="text-slate-300 text-lg">Do you accept this match and agree to upgrade to 'Couple Edition'?</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                <button onclick="handleAccept(true)" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-4 px-6 rounded-xl text-xl shadow-lg transition-transform hover:scale-105">
+                    YES, I ACCEPT! 🎉
+                </button>
+                <button id="no-btn" onclick="handleAccept(false)" class="bg-slate-700 text-slate-400 font-bold py-4 px-6 rounded-xl transition-all">
+                    NO, REJECT
+                </button>
+            </div>
+            <p id="no-error-msg" class="hidden text-red-500 font-bold mt-4"></p>
         </div>
     </div>
 
     <div id="screen-final" class="hidden text-center space-y-8 max-w-2xl w-full">
-        <div class="bg-white text-black p-8 md:p-10 rounded-[2rem] shadow-[0_0_100px_rgba(34,197,94,0.4)] relative overflow-hidden">
-            <div class="absolute inset-0 opacity-5 pointer-events-none text-left break-all font-mono text-xs text-green-900 p-2 overflow-hidden">
-                01001101 01100001 01110010 01110010 01101001 01100001 01100111 01100101...
-            </div>
-
-            <h1 class="text-3xl md:text-5xl font-black mb-4 italic text-green-600 relative z-10">MISSION SUCCESSFUL!</h1>
-            <p class="text-lg md:text-xl font-bold leading-relaxed text-zinc-700 mb-6 relative z-10">
-                "Batala te Chandigarh labhan to baad, <br>
-                Asal 'Feature' <b>Amritsar</b> ch mileya!<br>
-                Bug fixes are done, system is permanently locked."
+        <div class="bg-white text-black p-8 md:p-12 rounded-[2rem] shadow-[0_0_100px_rgba(255,255,255,0.4)]">
+            <h1 class="text-4xl md:text-6xl font-black mb-6 text-blue-600">IT'S OFFICIAL! 🥳</h1>
+            <p class="text-xl md:text-2xl font-bold leading-relaxed text-zinc-700 mb-6">
+                Bug fixes are done, system is permanently locked.<br>
+                Munda ab fully booked hai!
             </p>
-            
-            <div class="inline-block bg-slate-100 p-6 rounded-xl border-2 border-dashed border-slate-400 mb-6 w-full relative z-10">
-                <p class="text-sm text-slate-500 uppercase tracking-widest mb-2 font-bold">Target Acquired:</p>
-                <p class="text-3xl font-black text-black uppercase">AMRITSAR DI KUDI! ❤️</p>
-            </div>
-            
-            <p class="mt-2 text-2xl md:text-3xl font-black text-blue-600 uppercase tracking-widest animate-bounce relative z-10">Hun Viah Di Tyari Karo! 🕺🥃</p>
+            <div class="text-6xl mb-6">🥂🕺💃</div>
+            <p class="text-3xl md:text-4xl font-black text-green-600 uppercase tracking-widest animate-bounce">Hun Party Da Time Hai!</p>
         </div>
     </div>
 
     <script>
         // --- QUIZ DATA ---
-        // Using stable Giphy URLs (i.giphy.com)
+        // Tricky questions tailored for parents/relatives
         const quizData = [
             { 
-                q: "Question 1: Ghar walo ko kya lagta tha main laptop pe sara din kya karta hu?", 
-                o: ["Hacking NASA", "Searching for Bahu", "Playing Games", "Actually Coding"],
+                q: "Q1: Raat ko 2 baje tak laptop pe meri ungliyan tez-tez kyu chalti thi? Aapko kya lagta tha?", 
+                o: ["Project ki deadline thi! 💻", "Doston ke sath Gaming 🎮", "Bahu search algorithm optimize kar raha tha! 🔍", "Sirf keyboard saaf kar raha tha 🧹"],
                 m: "https://media.giphy.com/media/LmNwrBhejkK9EFP504/giphy.gif" // Typing fast
             },
             { 
-                q: "Question 2: Shaadi ke liye sabse important requirement kya thi?", 
-                o: ["Sundar & Susheel", "Must be a Coder", "Jo mera dimaag na khaye", "Dahej mein RTX 4090"],
-                m: "https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif" // Thinking smart
+                q: "Q2: Jab Mummy kehti thi 'Shaadi kar le', toh main kyu kehta tha 'Abhi time nahi hai'?", 
+                o: ["Sach mein time nahi tha ⏰", "Dusre ka code (Life) debug karne se darr lagta tha 🐛", "Background mein 'Amritsar Project' chal raha tha! 😉", "Game mein level cross karna tha 🕹️"],
+                m: "https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif" // Smart thinking
             },
             { 
-                q: "Question 3: Bahu dhundne ka process technically kaisa tha?", 
-                o: ["Easy Peasy", "Like solving LeetCode Hard", "Copy-Paste from StackOverflow", "Bhagwan bharose loop"],
-                m: "https://media.giphy.com/media/3oKIPcfX631trLEyCQ/giphy.gif" // Stress typing
+                q: "Q3: Mere hone wali 'Life-Partner' ke system mein sabse zaroori feature (Quality) kya hona chahiye?", 
+                o: ["Masterchef jaisa khana 🍲", "Mere bekaar jokes pe hasna 😂", "Dimaag ka code crash na kare 🧘‍♂️", "'Ctrl+S' (Patience) aur 'F5' (Freshness) dono ho! ✅"],
+                m: "https://media.giphy.com/media/xT0xeJpnrWC4XWblWQ/giphy.gif" // Mind blown
             }
         ];
 
         let currentQuiz = 0;
-        let scriptStage = 'batala'; 
         let clickedCities = new Set();
 
         function switchScreen(screenId) {
@@ -166,7 +181,7 @@
         // --- QUIZ LOGIC ---
         function loadQuestion() {
             if (currentQuiz >= quizData.length) {
-                startScript('batala');
+                startSearchPhase('Batala');
                 return;
             }
             const data = quizData[currentQuiz];
@@ -180,77 +195,76 @@
 
         function handleAnswer() {
             const data = quizData[currentQuiz];
-            document.getElementById('quiz-meme-content').innerHTML = `
-                <img src="${data.m}" alt="Meme" class="meme-img">
-            `;
+            document.getElementById('quiz-meme-content').innerHTML = `<img src="${data.m}" alt="Meme" class="meme-img">`;
             switchScreen('screen-quiz-meme');
         }
 
         function nextQuestion() {
             currentQuiz++;
-            if (currentQuiz >= quizData.length) {
-                startScript('batala');
-            } else {
-                switchScreen('screen-quiz-q');
-                loadQuestion();
-            }
+            loadQuestion();
+            if (currentQuiz < quizData.length) switchScreen('screen-quiz-q');
         }
 
-        // --- SCRIPT EXECUTION LOGIC ---
-        function startScript(stage) {
+        // --- SEARCH & SCRIPT LOGIC ---
+        function startSearchPhase(city) {
+            document.getElementById('search-intro-title').innerText = `Connecting to ${city}...`;
+            document.getElementById('search-intro-desc').innerText = `Scanning Girls Database in ${city}...`;
+            switchScreen('screen-search-intro');
+            
+            setTimeout(() => {
+                runScript(city);
+            }, 2500);
+        }
+
+        function runScript(city) {
             switchScreen('screen-script');
-            scriptStage = stage;
             const logBox = document.getElementById('script-logs');
             const nextBtn = document.getElementById('script-next-btn');
-            const execBtn = document.getElementById('script-execute-btn');
-            
             logBox.innerHTML = '';
             nextBtn.classList.add('hidden');
-            execBtn.classList.add('hidden');
+            nextBtn.className = "hidden w-full font-black py-4 rounded-xl text-lg uppercase shadow-lg transition-transform hover:scale-105 mt-4";
 
             let logs = [];
-            if (stage === 'batala') {
+            if (city === 'Batala') {
                 document.getElementById('script-title').innerText = "Running: Batala_Search.sh";
                 logs = [
-                    "// Initiating script to find suitable match...",
-                    "import { Rishta } from 'punjab_matrimony';",
+                    "// Initializing matchmaking algorithms...",
                     "const location = 'Batala';",
-                    "console.log('Scanning profiles in Batala...');",
-                    "Fetching data... [██████░░░░] 60%",
                     "Fetching data... [██████████] 100%",
                     "Analyzing vibes and compatibility...",
-                    "<span class='text-red-500 font-bold mt-2 block'>[CRITICAL ERROR] 404 NOT FOUND!</span>",
-                    "<span class='text-red-400'>Exception: No matching parameters found in local Batala database.</span>"
+                    "<span class='text-red-500 font-bold'>[ERROR] 404 NOT FOUND!</span>"
                 ];
-            } else if (stage === 'chandigarh') {
+                nextBtn.innerText = "Check Result";
+                nextBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'text-white');
+                nextBtn.onclick = () => showSearchError('Batala');
+            } else if (city === 'Chandigarh') {
                 document.getElementById('script-title').innerText = "Running: Chandigarh_Search.sh";
                 logs = [
-                    "// Batala failed. Expanding search radius...",
+                    "// Expanding search radius...",
                     "const location = 'Chandigarh';",
-                    "const filters = { attitude: 'low', swag: 'high' };",
-                    "console.log('Connecting to Chandigarh servers...');",
                     "Bypassing Elante Mall firewall...",
-                    "Scanning sectors 17, 22, and 35...",
                     "Evaluating profiles...",
-                    "<span class='text-red-500 font-bold mt-2 block'>[CRITICAL ERROR] VIBE_MISMATCH_EXCEPTION!</span>",
-                    "<span class='text-red-400'>Exception: Too much show-off detected. Dependency 'Simplicity' missing.</span>"
+                    "<span class='text-red-500 font-bold'>[ERROR] VIBE_MISMATCH! Too much attitude detected.</span>"
                 ];
-            } else if (stage === 'amritsar') {
+                nextBtn.innerText = "Check Result";
+                nextBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'text-white');
+                nextBtn.onclick = () => showSearchError('Chandigarh');
+            } else if (city === 'Amritsar') {
                 document.getElementById('script-title').innerText = "Running: Amritsar_Final.sh";
                 logs = [
-                    "// Override accepted. Setting target to Amritsar.",
-                    "const location = 'Amritsar';",
-                    "console.log('Deploying final search algorithms in Majha region...');",
-                    "Checking local databases...",
+                    "// Deploying Majha Region Algorithms...",
+                    "Checking local databases in Amritsar...",
                     "Kulcha index: OPTIMAL.",
                     "Suitability index: 100%.",
-                    "Verifying background...",
-                    "<span class='text-blue-400 font-bold mt-2 block'>[STATUS 200 OK] MATCH SECURED!</span>",
-                    "<span class='text-yellow-400 font-bold'>Data compiled. Ready for execution.</span>"
+                    "<span class='text-blue-400 font-bold'>[STATUS 200 OK] MATCH SECURED!</span>"
                 ];
+                nextBtn.innerText = "DECRYPT MATCH INFO";
+                nextBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-black', 'animate-pulse');
+                nextBtn.onclick = () => switchScreen('screen-match-found');
             }
 
             let i = 0;
+            // Sped up typing interval from 600ms to 250ms
             const typeInterval = setInterval(() => {
                 const line = document.createElement('div');
                 line.className = "pl-2 border-l-2 border-green-800 mb-1";
@@ -258,71 +272,79 @@
                 logBox.appendChild(line);
                 logBox.scrollTop = logBox.scrollHeight;
                 i++;
-
                 if (i >= logs.length) {
                     clearInterval(typeInterval);
-                    if (stage === 'amritsar') {
-                        execBtn.classList.remove('hidden');
-                    } else {
-                        nextBtn.classList.remove('hidden');
-                    }
+                    nextBtn.classList.remove('hidden');
                 }
-            }, 600);
+            }, 250);
         }
 
-        function handleScriptNext() {
-            if (scriptStage === 'batala') {
-                startScript('chandigarh');
-            } else if (scriptStage === 'chandigarh') {
-                switchScreen('screen-city');
+        function showSearchError(city) {
+            switchScreen('screen-search-error');
+            document.getElementById('error-title').innerText = `No Match in ${city}!`;
+            
+            // Updated custom error descriptions matching the terminal script
+            if(city === 'Batala') {
+                document.getElementById('error-desc').innerHTML = `The system found exactly 0 suitable profiles.<br><br><span class='text-sm text-red-400'>Reason: No matching parameters.</span>`;
+            } else if (city === 'Chandigarh') {
+                document.getElementById('error-desc').innerHTML = `Vibe Mismatch!<br><br><span class='text-sm text-red-400'>Reason: Attitude out of syllabus tha, aur show-off apne system requirements se match nahi kiya.</span>`;
             }
+            
+            const btn = document.getElementById('error-continue-btn');
+            btn.onclick = () => {
+                if (city === 'Batala') startSearchPhase('Chandigarh');
+                else if (city === 'Chandigarh') switchScreen('screen-city');
+            };
         }
 
         // --- CITY SELECTOR LOGIC ---
         function checkCity(city) {
             const alertBox = document.getElementById('city-alert');
-            alertBox.classList.remove('hidden', 'bg-red-900/40', 'border-red-500', 'text-red-400');
+            alertBox.classList.remove('hidden');
             alertBox.classList.add('bg-orange-900/40', 'border-orange-500', 'text-orange-400');
 
             if (city === 'Gurgaon') {
-                alertBox.innerHTML = "[ERROR] Nai nai, Pollution bohot hai uthe! AQI out of bounds hai, filter fat jayega!";
+                alertBox.innerHTML = "[ERROR] Nai nai, Pollution bohot hai uthe! Filter fat jayega!";
                 clickedCities.add('Gurgaon');
             } else if (city === 'Bangalore') {
-                alertBox.innerHTML = "[ERROR] Traffic Exception! Mandap tak pahunchte pahunchte bug old age ka aa jayega!";
+                alertBox.innerHTML = "[ERROR] Traffic Exception! Mandap tak pahunchte bug aa jayega!";
                 clickedCities.add('Bangalore');
             } else if (city === 'Mumbai') {
-                alertBox.innerHTML = "[ERROR] SpaceComplexity Error! Ghar bohot chote hain, Viah da tent kithe lawange?";
+                alertBox.innerHTML = "[ERROR] Space Error! Ghar bohot chote hain, Viah da tent kithe lawange?";
                 clickedCities.add('Mumbai');
             } else if (city === 'Amritsar') {
                 alertBox.classList.add('hidden');
-                startScript('amritsar');
+                startSearchPhase('Amritsar');
                 return;
             }
 
-            // Check if all 3 wrong cities are clicked
             if (clickedCities.size === 3) {
-                setTimeout(() => {
-                    document.getElementById('amritsar-container').classList.remove('hidden');
-                }, 1500);
+                setTimeout(() => { document.getElementById('amritsar-container').classList.remove('hidden'); }, 1000);
             }
         }
 
-        // --- HACKED & FINAL REVEAL LOGIC ---
-        function triggerHackScreen() {
-            switchScreen('screen-hacked');
-            
-            // Play Alert Sound
-            const audio = document.getElementById('alert-sound');
-            audio.volume = 0.5; // Don't make it too loud
-            audio.play().catch(e => console.log("Audio autoplay blocked by browser, skipping sound."));
+        // --- ACCEPTANCE & PARTY LOGIC ---
+        function showAcceptance() {
+            switchScreen('screen-acceptance');
+        }
 
-            // Wait 3.5 seconds, then transition to final
-            setTimeout(() => {
-                audio.pause();
-                audio.currentTime = 0;
-                confetti({ particleCount: 400, spread: 180, origin: { y: 0.5 } });
-                switchScreen('screen-final');
-            }, 3500);
+        function handleAccept(isYes) {
+            if (!isYes) {
+                const noBtn = document.getElementById('no-btn');
+                const msg = document.getElementById('no-error-msg');
+                noBtn.innerText = "ERROR 403";
+                noBtn.classList.replace('bg-slate-700', 'bg-red-900/50');
+                noBtn.classList.replace('text-slate-400', 'text-red-500');
+                msg.innerHTML = "Not a chance, we rejected! 😜 <br> (System Override: You cannot reject this!)";
+                msg.classList.remove('hidden');
+            } else {
+                confetti({ particleCount: 500, spread: 200, origin: { y: 0.5 } });
+                const audio = document.getElementById('party-sound');
+                audio.volume = 0.6;
+                audio.play().catch(e => console.log("Audio blocked."));
+                
+                setTimeout(() => { switchScreen('screen-final'); }, 1500);
+            }
         }
     </script>
 </body>
